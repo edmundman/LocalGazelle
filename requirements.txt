@@ -1,0 +1,8 @@
+torch
+transformers
+torchaudio
+keyboard
+sounddevice
+numpy
+pyttsx3
+gazelle
