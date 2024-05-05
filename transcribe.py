@@ -79,15 +79,22 @@ def record_audio():
     
     return output_path
 
-# Record audio and save it as a WAV file
-audio_path = record_audio()
+def process_audio(audio_path):
+    # Load the recorded audio
+    test_audio, sr = torchaudio.load(audio_path)
+    if sr != 16000:
+        test_audio = torchaudio.transforms.Resample(sr, 16000)(test_audio)
 
-# Load the recorded audio
-test_audio, sr = torchaudio.load(audio_path)
-if sr != 16000:
-    test_audio = torchaudio.transforms.Resample(sr, 16000)(test_audio)
+    # Run the audio through the LLM
+    inputs = inference_collator(test_audio)
+    response = tokenizer.decode(model.generate(**inputs, max_new_tokens=64)[0])
+    print("Response:", response)
+    
+    return response
 
-# Run the audio through the LLM
-inputs = inference_collator(test_audio, "Transcribe the following \n<|audio|>")
-response = tokenizer.decode(model.generate(**inputs, max_new_tokens=64)[0])
-print("Response:", response)
+while True:
+    # Record audio and save it as a WAV file
+    audio_path = record_audio()
+    
+    # Process the recorded audio and get the response
+    response = process_audio(audio_path)
